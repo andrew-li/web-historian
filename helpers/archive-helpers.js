@@ -86,15 +86,26 @@ var options = {
   path: ''
 };
 
-var writeFile = function(pathname, fileContents) {
+
+var writeFile = function(data, i, fileContents) {
+  var pathname = data[i].split(',')[0];
   fs.writeFile(exports.paths.archivedSites + "/" + pathname, fileContents, function(err) {
     if (err) throw err;
 
+    data[i] = data[i].split(',');
+    data[i][1] = ' 1';
+    data[i] = data[i].join(',');
+
     //set url in list to 1
+    fs.writeFile(exports.paths.list, data.join('\n'), function() {
+      if (err) throw err;
+    });
   });
+
 };
 
-var getFile = function(pathname) {
+//data is pathname array and i is pathname index
+var getFile = function(data, i) {
   var callback = function(response) {
     var str = '';
 
@@ -105,11 +116,11 @@ var getFile = function(pathname) {
 
     //the whole response has been recieved, so we just print it out here
     response.on('end', function () {
-      writeFile(pathname, str);
+      writeFile(data, i, str);
     });
   };
 
-  options.host = pathname;
+  options.host = data[i].split(',')[0]; //pathname
 
   http.request(options, callback).end();
 };
@@ -122,7 +133,8 @@ exports.downloadUrls = function() { //filename
     {
       if(data[i].charAt(data[i].length - 1) === '0')
       {
-        getFile(data[i].split(',')[0]);
+        //getFile(data[i].split(',')[0]);
+        getFile(data, i);
       }
     }
   });

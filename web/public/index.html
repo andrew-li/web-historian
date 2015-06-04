@@ -2,11 +2,35 @@
 <html>
 <head>
   <link rel="stylesheet" type="text/css" href="styles.css" />
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 </head>
 <body>
+
   Enter a URL here:
-  <form method="POST">
+  <form id="site" method="POST">
     <input type="input" name="url"></input>
   </form>
+
+  <script>
+    $(document).ready(function() {
+      var ajaxRequest = function(e){
+        e.preventDefault()
+        var url = $('input').val();
+        //AJAX TIME
+        $.ajax({
+          type: 'POST',
+          url: url,
+          data: url,
+          contentType: 'text/plain',
+        });
+        window.location.replace(url);
+        $('input').val('');
+      };
+
+      $('#site').on('submit', ajaxRequest);
+
+    });
+  </script>
+
 </body>
 </html>

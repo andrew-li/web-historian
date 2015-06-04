@@ -9,6 +9,7 @@ var http = require('http');
 var sendResponse = function(response, data, statusCode, headers){
   statusCode = statusCode || 200;
   response.writeHead(statusCode, headers);
+console.log(data);
   response.end(data);
 };
 
@@ -26,7 +27,6 @@ exports.collectData = function(request, callback){
 
 /*
 TO-DO:
-download url func needs to update site.txt file
 fix html page
 handle loading page
 beat test cases
@@ -44,7 +44,7 @@ var options = {
 
 var actions = {
   'GET': function(request, response, pathname){
-    console.log(pathname);
+    console.log("GET " + pathname);
     var oldResponse = response;
 
     if (pathname === '/')
@@ -85,7 +85,6 @@ var actions = {
         if(bool === true)
         {
           var fullPath = path.join(__dirname, '../archives/sites' + pathname);
-          console.log(fullPath);
           httpHelpers.serveAssets(response, fullPath, function(err, html){
             if (err) throw err;
             httpHelpers.headers['Content-Type'] = 'text/html';
@@ -94,6 +93,11 @@ var actions = {
         }
         else
         {
+          archive.addUrlToList(pathname.slice(1));
+
+          /*
+          //retrieve the actual site
+
           var callback = function(response) {
             var str = '';
 
@@ -112,6 +116,15 @@ var actions = {
           options.host = pathname.slice(1);
 
           http.request(options, callback).end();
+          */
+
+          //send the loading page
+          var fullPath = path.join(__dirname, '../web/public/loading.html');
+          httpHelpers.serveAssets(response, fullPath, function(err, html){
+            if (err) throw err;
+            httpHelpers.headers['Content-Type'] = 'text/html';
+            sendResponse(response, html, undefined, httpHelpers.headers);
+          });
         }
       });
     }
@@ -123,7 +136,8 @@ var actions = {
 
   },
   'POST': function(request, response, pathname){
-    console.log(pathname);
+    console.log("POST " + pathname );
+    //actions['GET'](request, response, pathname);
     //sendResponse(response, archive.paths.list, 201);
 
   },
