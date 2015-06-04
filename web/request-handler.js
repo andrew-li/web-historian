@@ -53,6 +53,7 @@ var actions = {
     }
     else
     {
+      /*
       archive.isUrlInList('www.hackreactor.com', function(bool) {
          console.log(bool);
       });
@@ -62,6 +63,9 @@ var actions = {
       });
 
       archive.addUrlToList('www.hackreactors.com');
+      */
+
+      archive.downloadUrls();
     }
     /*
     else if (pathname.slice(0,4) === "/www")
@@ -79,7 +83,7 @@ var actions = {
           httpHelpers.headers['Content-Type'] = 'text/html';
           sendResponse(oldResponse, str, undefined, httpHelpers.headers);
         });
-      }
+      };
 
       options.host = pathname.slice(1);
 

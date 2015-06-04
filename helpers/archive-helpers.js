@@ -1,6 +1,8 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var urlParser = require('url');
+var http = require('http');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -78,28 +80,42 @@ exports.isURLArchived = function(target, callback){ //url, filename
   });
 };
 
-/*
-      var callback = function(response) {
-        var str = '';
 
-        //another chunk of data has been recieved, so append it to `str`
-        response.on('data', function (chunk) {
-          str += chunk;
-        });
+var options = {
+  host: '',
+  path: ''
+};
 
-        //the whole response has been recieved, so we just print it out here
-        response.on('end', function () {
-          httpHelpers.headers['Content-Type'] = 'text/html';
-          sendResponse(oldResponse, str, undefined, httpHelpers.headers);
-        });
-      }
+var writeFile = function(pathname, fileContents) {
+  fs.writeFile(exports.paths.archivedSites + "/" + pathname, fileContents, function(err) {
+    if (err) throw err;
+    console.log(exports.paths.archivedSites + "/" + pathname);
+    console.log(fileContents);
+    //set url in list to 1
+  });
+};
 
-      options.host = pathname.slice(1);
+var getFile = function(pathname) {
+  var callback = function(response) {
+    var str = '';
 
-      http.request(options, callback).end();
-*/
+    //another chunk of data has been recieved, so append it to `str`
+    response.on('data', function (chunk) {
+      str += chunk;
+    });
 
-exports.downloadUrls = function(callback){ //filename
+    //the whole response has been recieved, so we just print it out here
+    response.on('end', function () {
+      writeFile(pathname, str);
+    });
+  };
+
+  options.host = pathname;
+
+  http.request(options, callback).end();
+};
+
+exports.downloadUrls = function() { //filename
 //does the get request and saves the str as a file
 //updates no to yes
   exports.readListOfUrls(function(data){
@@ -107,9 +123,8 @@ exports.downloadUrls = function(callback){ //filename
     {
       if(data[i].charAt(data[i].length - 1) === '0')
       {
-        console.log("here");
+        getFile(data[i].split(',')[0]);
       }
     }
-    callback(bool);
   });
 };
