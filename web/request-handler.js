@@ -23,6 +23,20 @@ exports.collectData = function(request, callback){
 });
 */
 
+
+/*
+TO-DO:
+download url func needs to update site.txt file
+fix html page
+handle loading page
+beat test cases
+put on chron job
+/file after main address needs to be fixed
+handle images and other files
+
+ */
+
+
 var options = {
   host: '',
   path: ''
@@ -51,7 +65,7 @@ var actions = {
         sendResponse(response, css, undefined, httpHelpers.headers);
       });
     }
-    else
+    else if (pathname.slice(0,4) === "/www")
     {
       /*
       archive.isUrlInList('www.hackreactor.com', function(bool) {
@@ -63,32 +77,50 @@ var actions = {
       });
 
       archive.addUrlToList('www.hackreactors.com');
-      */
 
       archive.downloadUrls();
+      */
+
+      archive.isURLArchived(pathname.slice(1), function(bool) {
+        if(bool === true)
+        {
+          var fullPath = path.join(__dirname, '../archives/sites' + pathname);
+          console.log(fullPath);
+          httpHelpers.serveAssets(response, fullPath, function(err, html){
+            if (err) throw err;
+            httpHelpers.headers['Content-Type'] = 'text/html';
+            sendResponse(response, html, undefined, httpHelpers.headers);
+          });
+        }
+        else
+        {
+          var callback = function(response) {
+            var str = '';
+
+            //another chunk of data has been recieved, so append it to `str`
+            response.on('data', function (chunk) {
+              str += chunk;
+            });
+
+            //the whole response has been recieved, so we just print it out here
+            response.on('end', function () {
+              httpHelpers.headers['Content-Type'] = 'text/html';
+              sendResponse(oldResponse, str, undefined, httpHelpers.headers);
+            });
+          };
+
+          options.host = pathname.slice(1);
+
+          http.request(options, callback).end();
+        }
+      });
     }
-    /*
-    else if (pathname.slice(0,4) === "/www")
+    else
     {
-      var callback = function(response) {
-        var str = '';
+      httpHelpers.headers['Content-Type'] = 'text/plain';
+      sendResponse(response, "", 301, httpHelpers.headers);
+    }
 
-        //another chunk of data has been recieved, so append it to `str`
-        response.on('data', function (chunk) {
-          str += chunk;
-        });
-
-        //the whole response has been recieved, so we just print it out here
-        response.on('end', function () {
-          httpHelpers.headers['Content-Type'] = 'text/html';
-          sendResponse(oldResponse, str, undefined, httpHelpers.headers);
-        });
-      };
-
-      options.host = pathname.slice(1);
-
-      http.request(options, callback).end();
-    }*/
   },
   'POST': function(request, response, pathname){
     console.log(pathname);

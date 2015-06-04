@@ -89,8 +89,7 @@ var options = {
 var writeFile = function(pathname, fileContents) {
   fs.writeFile(exports.paths.archivedSites + "/" + pathname, fileContents, function(err) {
     if (err) throw err;
-    console.log(exports.paths.archivedSites + "/" + pathname);
-    console.log(fileContents);
+
     //set url in list to 1
   });
 };
